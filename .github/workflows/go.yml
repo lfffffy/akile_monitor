@@ -9,11 +9,10 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-        go-version: '1.21.x'
+        go-version: '1.21'
 
     steps:
       # 检出代码
@@ -37,7 +36,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-${{ matrix.go-version }}-modules-
 
@@ -47,18 +46,27 @@ jobs:
 
       # 构建项目
       - name: Build
-        run: go build ./...
+        run: |
+          go build -o build/main ./...
+      
+      # 在 Windows 下将构建结果打包
+      - name: Archive Build (Windows Only)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          # Windows 上预装了 bsdtar，可直接使用 tar 命令
+          tar -czvf build/windows_build.tar.gz ./build/main.exe
+
+      # 在非 Windows 系统无需额外打包，只要确保 build 目录存在有可执行文件
+      - name: Ensure Build Directory (Non-Windows)
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: |
+          # 已在 build 步骤中以 -o build/main 输出可执行文件，这里可视需要进行额外处理
+          # 比如 Linux/macOS 下可执行文件默认为 build/main (无.exe扩展)
+          ls build
 
       # 运行测试
       - name: Run Tests
         run: go test ./...
-
-      # 针对 Windows 打包构建产物
-      - name: Archive Build (Windows Only)
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          mkdir -p build
-          tar -czvf build/windows_build.tar.gz ./main.exe
 
       # 上传构建产物
       - name: Upload Build Artifacts
