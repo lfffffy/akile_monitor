@@ -1,28 +1,68 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go
+name: Build and Test for All OS and Go Versions
 
 on:
   push:
-    branches: [ "prod" ]
+    branches:
+      - prod
   pull_request:
-    branches: [ "prod" ]
 
 jobs:
-
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest] # 操作系统
+        go-version: [1.19, 1.20, 1.21]                   # Go 版本
+
     steps:
-    - uses: actions/checkout@v4
+      # 检出代码
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.20'
+      # 设置 Go 环境
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
 
-    - name: Build
-      run: go build -v ./...
+      # 显示环境信息
+      - name: Display Environment Info
+        run: |
+          echo "Operating System: ${{ matrix.os }}"
+          echo "Go Version: $(go version)"
 
-    - name: Test
-      run: go test -v ./...
+      # 缓存 Go 模块
+      - name: Cache Go Modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.go-version }}-modules-
+
+      # 安装依赖
+      - name: Install Dependencies
+        run: go mod tidy
+
+      # 构建项目
+      - name: Build
+        run: go build ./...
+
+      # 运行测试
+      - name: Run Tests
+        run: go test ./...
+
+      # 针对 Windows 打包构建产物
+      - name: Archive Build (Windows Only)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          mkdir -p build
+          tar -czvf build/windows_build.tar.gz ./main.exe
+
+      # 上传构建产物
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ matrix.os }}-${{ matrix.go-version }}
+          path: ./build
