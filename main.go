@@ -132,11 +132,8 @@ func main() {
 	LoadConfig()
 	initDb()
 	initFileDb()
-	if cfg.EnableTG {
-		go startbot()
-	}
 
-	if cfg.TgChatID != 0 {
+	if cfg.WeComKey != "" {
 		go func() {
 			for {
 				var mm []M
@@ -148,13 +145,13 @@ func main() {
 						if !offline[v.Host.Name] {
 							offline[v.Host.Name] = true
 							msg := fmt.Sprintf("❌ %s 离线了", v.Host.Name)
-							SendTGMessage(msg)
+							sendWeComMessage(msg)
 						}
 					} else {
 						if offline[v.Host.Name] {
 							offline[v.Host.Name] = false
 							msg := fmt.Sprintf("✅ %s 上线了", v.Host.Name)
-							SendTGMessage(msg)
+							sendWeComMessage(msg)
 						}
 					}
 				}

@@ -1,11 +1,10 @@
 {
-  "auth_secret": "auth_secret",
-  "listen": ":3000",
-  "enable_tg": false,
-  "tg_token": "your_telegram_bot_token",
+  "auth_secret": "lh168125",
+  "listen": ":8008",
+  "enable_weCom": true,
+  "weCom_key": "6afe3264-fc53-449d-a83b-a31f7b309b0c",
   "hook_uri": "/hook",
   "update_uri": "/monitor",
   "web_uri": "/ws",
-  "hook_token": "hook_token",
-  "tg_chat_id": 0
+  "hook_token": "lh168125"
 }

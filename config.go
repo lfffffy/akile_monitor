@@ -7,15 +7,14 @@ import (
 )
 
 type Config struct {
-	AuthSecret string `json:"auth_secret"`
-	Listen     string `json:"listen"`
-	EnableTG   bool   `json:"enable_tg"`
-	TgToken    string `json:"tg_token"`
-	UpdateUri  string `json:"update_uri"`
-	WebUri     string `json:"web_uri"`
-	HookUri    string `json:"hook_uri"`
-	HookToken  string `json:"hook_token"`
-	TgChatID   int64  `json:"tg_chat_id"`
+	AuthSecret  string `json:"auth_secret"`
+	Listen      string `json:"listen"`
+	EnableWeCom bool   `json:"enable_weCom"`
+	WeComKey    string `json:"weCom_key"`
+	UpdateUri   string `json:"update_uri"`
+	WebUri      string `json:"web_uri"`
+	HookUri     string `json:"hook_uri"`
+	HookToken   string `json:"hook_token"`
 }
 
 var cfg *Config
