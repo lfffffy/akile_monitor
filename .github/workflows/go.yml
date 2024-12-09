@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest] # 操作系统
+        os: [ubuntu-latest, windows-latest] # 操作系统
         go-version: [1.19, 1.20, 1.21]                   # Go 版本
 
     steps:
