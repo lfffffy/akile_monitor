@@ -44,24 +44,22 @@ jobs:
       - name: Install Dependencies
         run: go mod tidy
 
-      # 构建项目
+      # 构建项目 (产物命名为 prod)
       - name: Build
         run: |
-          go build -o build/main ./...
-      
+          go build -o build/prod ./...
+
       # 在 Windows 下将构建结果打包
       - name: Archive Build (Windows Only)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          # Windows 上预装了 bsdtar，可直接使用 tar 命令
-          tar -czvf build/windows_build.tar.gz ./build/main.exe
+          # Windows 环境下可执行文件为 build/prod.exe
+          tar -czvf build/windows_build.tar.gz ./build/prod.exe
 
       # 在非 Windows 系统无需额外打包，只要确保 build 目录存在有可执行文件
       - name: Ensure Build Directory (Non-Windows)
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
-          # 已在 build 步骤中以 -o build/main 输出可执行文件，这里可视需要进行额外处理
-          # 比如 Linux/macOS 下可执行文件默认为 build/main (无.exe扩展)
           ls build
 
       # 运行测试
